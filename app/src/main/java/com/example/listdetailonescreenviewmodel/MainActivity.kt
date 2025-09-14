@@ -62,21 +62,7 @@ fun BooksScaffold(modifier: Modifier = Modifier, mainViewModel: MainViewModel = 
         modifier = modifier,
         // https://developer.android.com/develop/ui/compose/components/app-bars
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
-                actions = {
-                    IconButton(onClick = { mainViewModel.uiStateChange(BooksUIState.Adding) }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add")
-                    }
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.Default.Call, contentDescription = "Delete")
-                    }
-                },
-                title = { Text("Books") }
-            )
+            MyTopAppBar(mainViewModel)
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -103,6 +89,26 @@ fun BooksScaffold(modifier: Modifier = Modifier, mainViewModel: MainViewModel = 
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun MyTopAppBar(mainViewModel: MainViewModel) {
+    TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.primary,
+        ),
+        actions = {
+            IconButton(onClick = { mainViewModel.uiStateChange(BooksUIState.Adding) }) {
+                Icon(Icons.Default.Add, contentDescription = "Add")
+            }
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(Icons.Default.Call, contentDescription = "Delete")
+            }
+        },
+        title = { Text("Books") }
+    )
+}
+
+@Composable
 fun BookListPanel(
     books: List<Book>,
     modifier: Modifier = Modifier,
@@ -112,6 +118,38 @@ fun BookListPanel(
     LazyColumn(modifier = modifier) {
         items(books) { book ->
             BookItem(book, onClickItem = onClickItem, onClickDelete = onClickDelete)
+        }
+    }
+}
+
+@Composable
+fun BookItem(
+    book: Book, modifier: Modifier = Modifier,
+    onClickItem: (Book) -> Unit = {},
+    onClickDelete: (Book) -> Unit = {}
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(5.dp),
+        onClick = { onClickItem(book) }) {
+        Row(
+            modifier = Modifier.padding(2.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = book.author,
+                modifier = Modifier.padding(8.dp),
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = book.title, modifier = Modifier.padding(8.dp),
+                fontStyle = FontStyle.Italic
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(onClick = { onClickDelete(book) }) {
+                Icon(Icons.Outlined.Delete, contentDescription = "Delete")
+            }
         }
     }
 }
@@ -150,8 +188,6 @@ fun AddBookPanel(
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = author,
-            //keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            //modifier = Modifier.fillMaxWidth(),
             onValueChange = { author = it },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             label = { Text("Author") }
@@ -168,50 +204,28 @@ fun AddBookPanel(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            OutlinedTextField(modifier = Modifier.weight(2f),
+            OutlinedTextField(
+                modifier = Modifier.weight(2f),
                 value = priceStr,
                 onValueChange = { priceStr = it },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 label = { Text("Price") }
             )
-            Button(modifier = Modifier
-                .weight(1f)
-                .padding(2.dp),
+            Button(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(2.dp),
                 // TODO is this the right place to declare state change?
                 onClick = { uiStateChange(BooksUIState.Details) }) {
                 Text("Cancel")
             }
-            Button(modifier = Modifier
-                .weight(1f)
-                .padding(2.dp), onClick = {
-                localAdd()
-            }) {
+            Button(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(2.dp), onClick = {
+                    localAdd()
+                }) {
                 Text("Add")
-            }
-        }
-    }
-}
-
-@Composable
-fun BookItem(
-    book: Book, modifier: Modifier = Modifier,
-    onClickItem: (Book) -> Unit = {},
-    onClickDelete: (Book) -> Unit = {}
-) {
-    Card(modifier = modifier
-        .fillMaxWidth()
-        .padding(5.dp),
-        onClick = { onClickItem(book) }) {
-        Row(modifier = Modifier.padding(2.dp)) {
-            Text(
-                text = book.author,
-                modifier = Modifier.padding(8.dp),
-                fontWeight = FontWeight.Bold
-            )
-            Text(text = book.title, modifier = Modifier.padding(8.dp), fontStyle = FontStyle.Italic)
-            Spacer(modifier = Modifier.weight(1f))
-            IconButton(onClick = { onClickDelete(book) }) {
-                Icon(Icons.Outlined.Delete, contentDescription = "Delete")
             }
         }
     }

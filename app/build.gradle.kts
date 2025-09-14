@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.listdetailonescreenviewmodel"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.listdetailonescreenviewmodel"
